@@ -1,4 +1,5 @@
-import { QueryInterface } from 'sequelize';
+import { QueryInterface } from "sequelize";
+import { ModelAttributes } from "sequelize/types/model";
 
 export default {
   /**
@@ -31,8 +32,193 @@ export default {
    * As a cinema owner I don't want to configure the seating for every show
    */
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  up: (queryInterface: QueryInterface): Promise<void> => {
-    throw new Error('TODO: implement migration in task 4');
+  up: async (queryInterface: QueryInterface) => {
+    await queryInterface.createTable("movies", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      title: { type: "varchar" },
+      description: { type: "varchar" },
+      duration: {
+        type: "timestamp",
+      },
+      release_date: {
+        type: "timestamp",
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("shows", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      movie_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "movies",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      show_time: {
+        type: "timestamp",
+      },
+      is_booked_out: {
+        type: "boolean",
+        defaultValue: false,
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("cinemas", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: "varchar",
+        allowNull: true,
+      },
+      location: {
+        type: "varchar",
+        allowNull: true,
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("showrooms", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      cinema_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "cinemas",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      name: {
+        type: "varchar",
+        allowNull: true,
+      },
+      capacity: {
+        type: "integer",
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("pricing_categories", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      name: {
+        type: "varchar",
+        allowNull: true,
+      },
+      premium_percentage: {
+        type: "boolean",
+        defaultValue: false,
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("show_pricing", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      show_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "shows",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      category_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "pricing_categories",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      price: {
+        type: "integer",
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("seats", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      showroom_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "showrooms",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      row_number: {
+        type: "integer",
+      },
+      seat_number: {
+        type: "integer",
+      },
+    } as ModelAttributes);
+    await queryInterface.createTable("seat_bookings", {
+      id: {
+        type: "integer",
+        primaryKey: true,
+        autoIncrement: true,
+      },
+      show_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "shows",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      seat_id: {
+        type: "integer",
+        allowNull: true,
+        references: {
+          model: {
+            tableName: "seats",
+          },
+          key: "id",
+        },
+        onDelete: "cascade",
+      },
+      user_id: {
+        type: "integer",
+      },
+      booking_time: {
+        type: "varchar",
+      },
+    } as ModelAttributes);
   },
 
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
