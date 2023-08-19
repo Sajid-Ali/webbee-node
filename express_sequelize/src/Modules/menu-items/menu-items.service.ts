@@ -1,5 +1,6 @@
+import MenuItem from "./entities/menu-item.entity";
+import { Op, literal } from "sequelize";
 export class MenuItemsService {
-
   /* TODO: complete getMenuItems so that it returns a nested menu structure
     Requirements:
     - your code should result in EXACTLY one SQL query no matter the nesting level or the amount of menu items.
@@ -76,6 +77,39 @@ export class MenuItemsService {
   */
 
   async getMenuItems() {
-    throw new Error('TODO in task 3');
+    try {
+      // Retrieve all menu items ordered by their IDs
+      const allMenuItems = await MenuItem.findAll({
+        order: [["id", "ASC"]],
+      });
+
+      // Create a map to store parent-child relationships
+      const menuItemMap = new Map<number | null, MenuItem[]>();
+
+      // Build the menu structure
+      allMenuItems.forEach((menuItem) => {
+        const parentId = menuItem.parentId || null;
+        if (!menuItemMap.has(parentId)) {
+          menuItemMap.set(parentId, []);
+        }
+        menuItemMap.get(parentId)?.push(menuItem);
+      });
+
+      // Recursively build the nested menu structure
+      const buildNestedMenu = (parentId: number | null): MenuItem[] | any => {
+        const children = menuItemMap.get(parentId) || [];
+        return children.map((child) => ({
+          ...child.toJSON(),
+          children: buildNestedMenu(child.id),
+        }));
+      };
+
+      // Start building the nested menu from the root
+      const nestedMenu = buildNestedMenu(null);
+
+      return nestedMenu;
+    } catch (error) {
+      throw error;
+    }
   }
 }
