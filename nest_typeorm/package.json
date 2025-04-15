@@ -23,7 +23,7 @@
     "migrate": "npm run typeorm migration:run -- -d src/config/typeorm.config-migrations.ts -t=false"
   },
   "dependencies": {
-    "@nestjs/common": "^9.0.0",
+    "@nestjs/common": "^11.0.16",
     "@nestjs/config": "^2.2.0",
     "@nestjs/core": "^9.0.0",
     "@nestjs/mapped-types": "*",
